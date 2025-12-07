@@ -1,0 +1,58 @@
+        .global _start
+
+_start:
+        LDR     R0, =input_num     @ R0 = address of n
+        LDR     R0, [R0]           @ R0 = n
+
+        BL      is_prime           @ result in R0
+
+        LDR     R1, =result
+        STR     R0, [R1]
+
+stop:
+        B       stop               @ infinite loop
+
+
+@ ------------------------------------------
+@ is_prime(n)
+@ Input : R0 = n
+@ Output: R0 = 1 (prime) or 0 (not prime)
+@ ------------------------------------------
+is_prime:
+        CMP     R0, #2
+        BLT     not_prime
+
+        MOV     R1, #2             @ divisor d = 2
+
+loop_check:
+        MUL     R2, R1, R1         @ R2 = d*d
+        CMP     R2, R0
+        BGT     yes_prime          @ if d*d > n → prime
+
+        MOV     R3, R0             @ R3 = n for remainder
+
+mod_loop:
+        CMP     R3, R1
+        BLT     mod_done
+        SUB     R3, R3, R1
+        B       mod_loop
+
+mod_done:
+        CMP     R3, #0
+        BEQ     not_prime          @ divisible → not prime
+
+        ADD     R1, R1, #1         @ d++
+        B       loop_check
+
+yes_prime:
+        MOV     R0, #1
+        BX      LR
+
+not_prime:
+        MOV     R0, #0
+        BX      LR
+
+
+.data
+input_num:  .word 3     @ change this to test
+result:     .word 0
